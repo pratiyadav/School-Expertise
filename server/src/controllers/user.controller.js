@@ -5,6 +5,23 @@ import { ApiError } from "../utils/ApiError.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+const generateAccessAndRefreshToken = async (userId) => {
+    try {
+        const user = await User.findById(userId) ; 
+        const accessToken = user.generateAccessToken() ; 
+        const refreshToken = user.generateRefreshToken() ; 
+    
+        user.refreshToken = refreshToken ; 
+    
+        await user.save({validateBeforeSave : false}) ; 
+    
+        return {accessToken , refreshToken} ;
+    } catch (error) {
+        throw new ApiError(500 , "Something went while generating access and refresh token") ; 
+    }
+}
+
 const register = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -52,6 +69,12 @@ const register = asyncHandler(async (req, res) => {
         .json(new ApiResponse(201, newUser, "User created successfully"));
 });
 
+const login = asyncHandler(async (req , res) => {
+    // get email and password form user
+    // check if get both or not
+    // generate token
+    // store the token in cookie
+})
 
 
 export {register}
