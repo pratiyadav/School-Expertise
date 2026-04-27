@@ -9,11 +9,10 @@ const teacherSchema = new mongoose.Schema({
     unique: true
   },
 
-  bio: String,bio: {
+  bio: {
     type: String,
     maxlength: 300
   },
-
 
   experience: {
     type: Number,
@@ -29,7 +28,14 @@ const teacherSchema = new mongoose.Schema({
       validator: arr => arr.length > 0,
       message: "At least one specialization required"
     }
+  },
+
+  courses: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "courses"
   }
+]
 
 }, { timestamps: true });
 
