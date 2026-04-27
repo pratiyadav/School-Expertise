@@ -9,6 +9,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const generateAccessAndRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId) ; 
+
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
         const accessToken = user.generateAccessToken() ; 
         const refreshToken = user.generateRefreshToken() ; 
     
@@ -18,7 +23,7 @@ const generateAccessAndRefreshToken = async (userId) => {
     
         return {accessToken , refreshToken} ;
     } catch (error) {
-        throw new ApiError(500 , "Something went while generating access and refresh token") ; 
+        throw new ApiError(500, error.message || "Token generation failed");
     }
 }
 
@@ -43,7 +48,7 @@ const register = asyncHandler(async (req, res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    if (!avatar) {
+    if (!avatar?.url) {
         throw new ApiError(400, "Avatar upload failed");
     }
 
@@ -74,7 +79,39 @@ const login = asyncHandler(async (req , res) => {
     // check if get both or not
     // generate token
     // store the token in cookie
+
+    const {email , password} = req.body ; 
+
+    if([email , password].some((field) => !field || !field.trim())){
+        throw new ApiError(400 , "Require both email and password") ; 
+    }
+
+    const user = await User.findOne({email}).select("+password") ; 
+
+    if(!user){
+        throw new ApiError(404 , "User do not exist") ; 
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(password) ; 
+
+    if(!isPasswordCorrect){
+        throw new ApiError(401 , "Invalid Credentials")
+    }
+
+    const {accessToken , refreshToken} = await generateAccessAndRefreshToken(user._id) ; 
+
+    const option = {
+        httpOnly: true , 
+        // secure : true ,
+    }
+
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken") ; 
+
+    return res.status(200)
+    .cookie("accessToken", accessToken , option)
+    .cookie("refreshToken" , refreshToken , option)
+    .json(new ApiResponse(200 , loggedInUser , "Successfully logged in")) ; 
 })
 
 
-export {register}
+export {register , login}
