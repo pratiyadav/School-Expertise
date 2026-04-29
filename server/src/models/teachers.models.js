@@ -14,7 +14,6 @@ const teacherSchema = new mongoose.Schema({
     maxlength: 300
   },
 
-
   experience: {
     type: Number,
     min: 0,
@@ -29,8 +28,15 @@ const teacherSchema = new mongoose.Schema({
       validator: arr => arr.length > 0,
       message: "At least one specialization required"
     }
-  }
+  },
+
+  courses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course"
+    }
+  ]
 
 }, { timestamps: true });
 
-export const Teacher =  mongoose.model("Teacher", teacherSchema);
+export const Teacher = mongoose.model("Teacher", teacherSchema);
