@@ -19,10 +19,13 @@ app.use(cookieParser());
 import { healthRouter } from "./Routes/health.routes.js";
 import { userRouter } from "./Routes/user.routes.js";
 import { adminRouter } from "./Routes/admin.routes.js";
+import { courseRouter } from "./Routes/course.routes.js";
 
 app.use("/api/v1/check", healthRouter);
 app.use("/api/v1/users" , userRouter) ; 
 app.use("/api/v1/admin" , adminRouter) ;
+app.use("/api/v1/courses" , courseRouter) ; 
+
 
 // error handler (MUST be last)
 app.use((err, req, res, next) => {
