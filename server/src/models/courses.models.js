@@ -8,6 +8,12 @@ const courseSchema = new mongoose.Schema({
     minlength: 3
   },
 
+  category: {
+    type: [String],
+    enum: ["AI", "ML", "Deep Learning", "Web Dev", "Data Science" , "Security"],
+    required: true
+  },
+
   description: {
     type: String,
     maxlength: 300
